@@ -16,8 +16,14 @@
         const fetchBtn = document.getElementById('fetch-btn')
         const responseText = document.getElementById('response-output')
 
-        fetchBtn.addEventListener('click', () => {
-          responseText.innerText = 'Static Text Replacement'
+        fetchBtn.addEventListener('click', async () => {
+          try {
+            const results = await fetch('../netlify/functions/swap-token');
+            console.log(results);
+          } catch (error) {
+            console.error(error);
+          }
+
         })
       })
     </script>
