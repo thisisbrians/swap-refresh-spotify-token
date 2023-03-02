@@ -1,5 +1,4 @@
-
-import axios from 'axios';
+const axios = require('axios')
 
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
