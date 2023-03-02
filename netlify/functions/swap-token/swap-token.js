@@ -1,5 +1,5 @@
 
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -15,7 +15,23 @@ export const handler = async (event) => {
     const authHeader = `Basic ${authString}`;
 
     const spotifyCode = JSON.parse(event.body).code;
-    console.log(spotifyCode);
+
+    axios.defaults.baseURL = spotifyEndPoint;
+    axios.defaults.headers.common['Authorization'] = authHeader;
+    axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
+    const config = {
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    }
+
+    const data = new URLSearchParams({
+      grant_type: grantType,
+      refresh_token: refreshToken,
+      redirect_uri: spotifyClientCallback
+    });
 
     const authOptions = {
       method: 'POST',
@@ -26,12 +42,14 @@ export const handler = async (event) => {
       body: `grant_type=${grantType}&swap_token=${spotifyCode}&redirect_uri=${spotifyClientCallback}`
     }
 
-    const result = fetch(spotifyEndPoint, authOptions);
-    console.log(result);
+    const response = await axios.post('spotifyEndPoint', data, config)
+
+    //const result = fetch(spotifyEndPoint, authOptions);
+    console.log(response);
 
     return {
       statusCode: 200,
-      body: JSON.stringify(result),
+      body: JSON.stringify(response),
     }
 
 
