@@ -1,18 +1,14 @@
-
 import fetch from 'node-fetch';
-
+import dotenv from 'dotenv';
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const spotifyClientCallback = process.env.SPOTIFY_CLIENT_CALLBACK;
 const spotifyEndPoint = process.env.SPOTIFY_END_POINT;
-const grantType = 'authorization_code';
+const grantRefreshType = 'refresh_token';
 
 export const handler = async (event) => {
   try {
-    console.log('Swap Token');
-
-    const authString = Buffer.from(spotifyClientId + ':' + spotifyClientSecret).toString('base64');
-    const authHeader = `Basic ${authString}`;
+    console.log('Refresh Token');
 
     const spotifyCode = JSON.parse(event.body).code;
     console.log(spotifyCode);
@@ -20,10 +16,9 @@ export const handler = async (event) => {
     const authOptions = {
       method: 'POST',
       headers: {
-        'Authorization': authHeader,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: `grant_type=${grantType}&swap_token=${spotifyCode}&redirect_uri=${spotifyClientCallback}`
+      body: `grant_type=${grantRefreshType}&swap_token=${spotifyCode}&client_id=${spotifyClientId}&client_secret=${spotifyClientSecret}&redirect_uri=${spotifyClientCallback}`
     }
 
     const result = fetch(spotifyEndPoint, authOptions);
@@ -39,4 +34,3 @@ export const handler = async (event) => {
     return { statusCode: 500, body: error.toString() }
   }
 }
-
