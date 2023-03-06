@@ -1,5 +1,5 @@
-const fetch = request("node-fetch").default;
-const qs = require("qs");
+import fetch from "node-fetch";
+import qs from "qs";
 
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
