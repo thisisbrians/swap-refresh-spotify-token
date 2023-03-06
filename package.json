@@ -7,8 +7,11 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.3",
-    "node-fetch": "^3.3.0",
-    "qs": "^6.11.0"
+    "qs": "^6.11.0",
+    "node-fetch": "^3.3.0"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "node-fetch": "^3.3.0"
+  }
 }
