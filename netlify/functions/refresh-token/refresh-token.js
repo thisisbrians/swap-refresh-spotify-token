@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const qs = requier("qs");
+const qs = require("qs");
 
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
