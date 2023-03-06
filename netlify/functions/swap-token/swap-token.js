@@ -1,4 +1,5 @@
-const axios = require('axios')
+import fetch from "node-fetch";
+import qs from "qs";
 
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -7,53 +8,40 @@ const spotifyEndPoint = process.env.SPOTIFY_END_POINT;
 const grantType = 'authorization_code';
 
 export const handler = async (event) => {
+  const code = event.body.split('=')[1];
+  const authString = Buffer.from(spotifyClientId + ':' + spotifyClientSecret).toString('base64');
+  const authHeader = `Basic ${authString}`;
+
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': authHeader,
+  }
+
   try {
-    console.log('Swap Token');
-
-    const authString = Buffer.from(spotifyClientId + ':' + spotifyClientSecret).toString('base64');
-    const authHeader = `Basic ${authString}`;
-
-    const spotifyCode = JSON.parse(event.body).code;
-
-    axios.defaults.baseURL = spotifyEndPoint;
-    axios.defaults.headers.common['Authorization'] = authHeader;
-    axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
-
-    const config = {
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    }
-
-    const data = new URLSearchParams({
-      grant_type: grantType,
-      refresh_token: refreshToken,
-      redirect_uri: spotifyClientCallback
+    const response = await fetch(spotifyEndPoint, {
+      method: 'POST',
+      headers: headers,
+      body: qs.stringify({
+        grant_type: grantType,
+        redirect_uri: spotifyClientCallback,
+        code: code,
+      }),
     });
 
-    const authOptions = {
-      method: 'POST',
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: `grant_type=${grantType}&swap_token=${spotifyCode}&redirect_uri=${spotifyClientCallback}`
-    }
-
-    const response = await axios.post('spotifyEndPoint', data, config)
-
-    //const result = fetch(spotifyEndPoint, authOptions);
-    console.log(response);
+    const dataToReturn = await response.json();
 
     return {
       statusCode: 200,
-      body: JSON.stringify(response),
+      body: JSON.stringify(dataToReturn)
     }
-
-
   } catch (error) {
-    return { statusCode: 500, body: error.toString() }
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: error.message,
+      }),
+    };
   }
 }
+
 

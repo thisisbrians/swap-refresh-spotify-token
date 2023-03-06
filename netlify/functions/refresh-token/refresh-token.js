@@ -1,36 +1,45 @@
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
+import fetch from "node-fetch";
+import qs from "qs";
+
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const spotifyClientCallback = process.env.SPOTIFY_CLIENT_CALLBACK;
 const spotifyEndPoint = process.env.SPOTIFY_END_POINT;
-const grantRefreshType = 'refresh_token';
+const grantType = 'refresh_token';
 
 export const handler = async (event) => {
+  const refreshToken = event.body.split('=')[1];
+  const authString = Buffer.from(spotifyClientId + ':' + spotifyClientSecret).toString('base64');
+  const authHeader = `Basic ${authString}`;
+
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': authHeader,
+  }
+
   try {
-    console.log('Refresh Token');
-
-    const spotifyCode = JSON.parse(event.body).code;
-    console.log(spotifyCode);
-
-    const authOptions = {
+    const response = await fetch(spotifyEndPoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: `grant_type=${grantRefreshType}&swap_token=${spotifyCode}&client_id=${spotifyClientId}&client_secret=${spotifyClientSecret}&redirect_uri=${spotifyClientCallback}`
-    }
+      headers: headers,
+      body: qs.stringify({
+        grant_type: grantType,
+        redirect_uri: spotifyClientCallback,
+        refresh_token: refreshToken,
+      }),
+    });
 
-    const result = fetch(spotifyEndPoint, authOptions);
-    console.log(result);
+    const dataToReturn = await response.json();
 
     return {
       statusCode: 200,
-      body: JSON.stringify(result),
+      body: JSON.stringify(dataToReturn)
     }
-
-
   } catch (error) {
-    return { statusCode: 500, body: error.toString() }
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: error.message,
+      }),
+    };
   }
 }
