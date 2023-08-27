@@ -8,6 +8,9 @@ const spotifyEndPoint = process.env.SPOTIFY_END_POINT;
 const grantType = 'refresh_token';
 
 export const handler = async (event) => {
+  console.log('handling incoming request...');
+  console.log(event.body);
+
   const refreshToken = event.body.split('=')[1];
   const authString = Buffer.from(spotifyClientId + ':' + spotifyClientSecret).toString('base64');
   const authHeader = `Basic ${authString}`;
@@ -30,11 +33,18 @@ export const handler = async (event) => {
 
     const dataToReturn = await response.json();
 
+    console.log('success');
+    console.log(dataToReturn);
+
     return {
       statusCode: 200,
       body: JSON.stringify(dataToReturn)
     }
   } catch (error) {
+
+    console.log('error');
+    console.log(error.message);
+
     return {
       statusCode: 400,
       body: JSON.stringify({
