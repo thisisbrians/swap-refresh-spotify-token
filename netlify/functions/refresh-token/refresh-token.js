@@ -11,7 +11,14 @@ export const handler = async (event) => {
   console.log('handling incoming request...');
   console.log(event.body);
 
-  const refreshToken = event.body.split('=')[1];
+  // const refreshToken = event.body.split('=')[1];
+
+  const queryParams = qs.parse(event.body);
+  console.log("queryParams", queryParams);
+
+  const refreshToken = queryParams.refresh_token;
+  console.log("refreshToken", refreshToken);
+
   const authString = Buffer.from(spotifyClientId + ':' + spotifyClientSecret).toString('base64');
   const authHeader = `Basic ${authString}`;
 
